@@ -1,1 +1,1 @@
-# Repositório das Atividades da disciplina de Sistemas Distribuídos
+# Atividades da disciplina de Sistemas Distribuídos
