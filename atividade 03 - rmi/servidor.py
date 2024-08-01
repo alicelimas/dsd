@@ -1,58 +1,58 @@
 import Pyro4
 
 @Pyro4.expose
-class ResourceReservation:
+class ReservaDeSalas:
     def __init__(self):
-        self.resources = {"Sala 1": True, "Sala 2": True, "Sala 3": True, "Sala 4": True}
-        self.reservations = {}
-        self.clients = []
+        self.salas = {"Sala 1": True, "Sala 2": True, "Sala 3": True, "Sala 4": True}
+        self.reservas = {}
+        self.clientes = []
 
-    def register_client(self, client_uri):
-        if client_uri not in self.clients:
-            self.clients.append(client_uri)
-            print(f"Cliente registrado: {client_uri}")
+    def registrar_cliente(self, cliente_uri):
+        if cliente_uri not in self.clientes:
+            self.clientes.append(cliente_uri)
+            print(f"Cliente registrado: {cliente_uri}")
 
-    def unregister_client(self, client_uri):
-        if client_uri in self.clients:
-            self.clients.remove(client_uri)
-            print(f"Cliente desregistrado: {client_uri}")
+    def desregistrar_cliente(self, cliente_uri):
+        if cliente_uri in self.clientes:
+            self.clientes.remove(cliente_uri)
+            print(f"Cliente desregistrado: {cliente_uri}")
 
-    def reserve_resource(self, resource_name, user):
-        if not self.resources.get(resource_name):
+    def reservar_sala(self, nome_sala, usuario):
+        if not self.salas.get(nome_sala):
             return "Sala já reservada."
-        if self.reservations.get(resource_name) == user:
+        if self.reservas.get(nome_sala) == usuario:
             return "Você já reservou essa sala."
-        self.resources[resource_name] = False
-        self.reservations[resource_name] = user
-        self.notify_clients(f"{user} reservou {resource_name}.")
+        self.salas[nome_sala] = False
+        self.reservas[nome_sala] = usuario
+        self.notificar_clientes(f"{usuario} reservou {nome_sala}.")
         return "Sala reservada com sucesso."
 
-    def cancel_reservation(self, resource_name, user):
-        if self.reservations.get(resource_name) != user:
+    def cancelar_reserva(self, nome_sala, usuario):
+        if self.reservas.get(nome_sala) != usuario:
             return "Você não tem uma reserva para essa sala."
-        self.resources[resource_name] = True
-        del self.reservations[resource_name]
-        self.notify_clients(f"{user} cancelou a reserva de {resource_name}.")
+        self.salas[nome_sala] = True
+        del self.reservas[nome_sala]
+        self.notificar_clientes(f"{usuario} cancelou a reserva de {nome_sala}.")
         return "Reserva cancelada com sucesso."
 
-    def get_resources(self):
-        return self.resources
+    def obter_salas(self):
+        return self.salas
 
-    def notify_clients(self, message):
-        for client_uri in self.clients:
+    def notificar_clientes(self, mensagem):
+        for cliente_uri in self.clientes:
             try:
-                client = Pyro4.Proxy(client_uri)
-                client.receive_notification(message)
+                cliente = Pyro4.Proxy(cliente_uri)
+                cliente.receber_notificacao(mensagem)
             except Exception as e:
-                print(f"Erro ao notificar cliente {client_uri}: {e}")
+                print(f"Erro ao notificar cliente {cliente_uri}: {e}")
 
 def main():
     host = "10.3.5.11" 
     daemon = Pyro4.Daemon(host=host)
     ns = Pyro4.locateNS()
-    uri = daemon.register(ResourceReservation())
-    ns.register("resource.reservation", uri)
-    print(f"Servidor de reservas iniciado. URI: {uri}")
+    uri = daemon.register(ReservaDeSalas())
+    ns.register("reserva.salas", uri)
+    print(f"Servidor de reservas iniciado.\nURI: {uri}")
     daemon.requestLoop()
 
 if __name__ == "__main__":
