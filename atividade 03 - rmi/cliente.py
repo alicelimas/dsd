@@ -7,15 +7,26 @@ class ClienteDeSalas:
     def __init__(self):
         self.servidor = None
         self.nome_usuario = simpledialog.askstring("Usuário", "Digite seu nome de usuário:")
+
+        if not self.nome_usuario:
+            messagebox.showerror("Erro", "Nome de usuário não pode estar vazio.")
+            return
+
         self.uri_servidor = simpledialog.askstring("Servidor", "Digite a URI do servidor:")
 
-        if self.uri_servidor and self.nome_usuario:
-            try:
-                self.servidor = Pyro4.Proxy(self.uri_servidor)
-                self.servidor.registrar_cliente(self.nome_usuario)
-            except Exception as e:
-                messagebox.showerror("Erro", f"Não foi possível conectar ao servidor: {e}")
+        if not self.uri_servidor:
+            messagebox.showerror("Erro", "URI do servidor não pode estar vazio.")
+            return
+
+        try:
+            self.servidor = Pyro4.Proxy(self.uri_servidor)
+            resultado = self.servidor.registrar_cliente(self.nome_usuario)
+            if resultado != "Registrado com sucesso.":
+                messagebox.showerror("Erro", resultado)
                 return
+        except Exception as e:
+            messagebox.showerror("Erro", f"Não foi possível conectar ao servidor: {e}")
+            return
 
         self.root = tk.Tk()
         self.root.title(f"Reserva de Salas - {self.nome_usuario}")
@@ -38,17 +49,14 @@ class ClienteDeSalas:
         self.salas_frame = tk.Frame(self.main_frame)
         self.salas_frame.pack(pady=10)
 
-        # Botões para reservar, cancelar reserva e atualizar salas
+        # Botões para reservar e cancelar reserva
         self.reserve_button = tk.Button(self.main_frame, text="Reservar Sala", command=self.reservar_sala)
         self.reserve_button.pack(pady=5)
 
         self.cancel_button = tk.Button(self.main_frame, text="Cancelar Reserva", command=self.cancelar_reserva)
         self.cancel_button.pack(pady=5)
 
-        self.update_button = tk.Button(self.main_frame, text="Atualizar Salas", command=self.atualizar_salas)
-        self.update_button.pack(pady=5)
-
-        self.atualizar_salas()
+        self.atualizar_salas_periodicamente()
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
@@ -88,8 +96,9 @@ class ClienteDeSalas:
             except Exception as e:
                 messagebox.showerror("Erro", f"Não foi possível atualizar as salas: {e}")
 
-    def receber_notificacao(self, mensagem):
-        messagebox.showinfo("Notificação", mensagem)
+    def atualizar_salas_periodicamente(self):
+        self.atualizar_salas()
+        self.root.after(4000, self.atualizar_salas_periodicamente)  
 
     def on_closing(self):
         if self.servidor:
