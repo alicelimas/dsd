@@ -2,7 +2,6 @@ import Pyro4
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 
-@Pyro4.expose
 class ClienteDeSalas:
     def __init__(self):
         self.servidor = None
