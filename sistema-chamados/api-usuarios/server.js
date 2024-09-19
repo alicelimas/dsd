@@ -25,6 +25,33 @@ app.post('/usuarios/criar', (req, res) => {
   res.status(201).json(novoUsuario);
 });
 
+// Atualizar um usuário
+app.put('/usuarios/:id', (req, res) => {
+  const usuarioId = parseInt(req.params.id);
+  const usuario = usuarios.find(u => u.id === usuarioId);
+  
+  if (usuario) {
+    usuario.nome = req.body.nome;
+    usuario.email = req.body.email;
+    res.json(usuario);
+  } else {
+    res.status(404).json({ erro: 'Usuário não encontrado' });
+  }
+});
+
+// Deletar um usuário
+app.delete('/usuarios/:id', (req, res) => {
+  const usuarioId = parseInt(req.params.id);
+  const index = usuarios.findIndex(u => u.id === usuarioId);
+  
+  if (index !== -1) {
+    usuarios.splice(index, 1);
+    res.status(200).json({ mensagem: 'Usuário deletado com sucesso' });
+  } else {
+    res.status(404).json({ erro: 'Usuário não encontrado' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`API de Usuários rodando na porta ${PORT}`);
 });
