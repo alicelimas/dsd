@@ -21,50 +21,13 @@ const swaggerOptions = {
       version: '1.0.0',
     },
   },
-  apis: ['gateway.js'],
+  apis: ['./docs/*.js'],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-/**
- * @swagger
- * /api/chamados:
- *   get:
- *     description: Obtém uma lista de todos os chamados
- *     responses:
- *       200:
- *         description: Lista de chamados
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 chamados:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       descricao:
- *                         type: string
- *                       status:
- *                         type: string
- *                 _links:
- *                   type: object
- *                   properties:
- *                     self:
- *                       type: object
- *                       properties:
- *                         href:
- *                           type: string
- *                     criar:
- *                       type: object
- *                       properties:
- *                         href:
- *                           type: string
- */
+// Listar chamados
 app.get('/api/chamados', async (req, res) => {
   try {
     const response = await axios.get('http://localhost:4000/chamados');
@@ -80,44 +43,8 @@ app.get('/api/chamados', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/usuarios:
- *   get:
- *     description: Obtém uma lista de todos os usuários
- *     responses:
- *       200:
- *         description: Lista de usuários
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 usuarios:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       name:
- *                         type: string
- *                       email:
- *                         type: string
- *                 _links:
- *                   type: object
- *                   properties:
- *                     self:
- *                       type: object
- *                       properties:
- *                         href:
- *                           type: string
- *                     criar:
- *                       type: object
- *                       properties:
- *                         href:
- *                           type: string
- */
+
+//Listar usuários
 app.get('/api/usuarios', async (req, res) => {
   try {
     const response = await axios.get('http://localhost:4001/usuarios');
@@ -133,41 +60,42 @@ app.get('/api/usuarios', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/chamados/criar:
- *   post:
- *     description: Cria um novo chamado com um usuário associado
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               descricao:
- *                 type: string
- *               usuarioId:
- *                 type: integer
- *                 description: ID do usuário associado ao chamado
- *     responses:
- *       201:
- *         description: Chamado criado com sucesso
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 descricao:
- *                   type: string
- *                 status:
- *                   type: string
- *                 usuarioId:
- *                   type: integer
- *                   description: ID do usuário associado ao chamado
- */
+
+// Criar um novo usuário
+app.post('/api/usuarios/criar', async (req, res) => {
+  try {
+    const response = await axios.post('http://localhost:4001/usuarios/criar', req.body);
+    res.status(201).json(response.data);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao criar usuário' });
+  }
+});
+
+
+
+// Atualizar um usuário
+app.put('/api/usuarios/:id', async (req, res) => {
+  try {
+    const response = await axios.put(`http://localhost:4001/usuarios/${req.params.id}`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao atualizar usuário' });
+  }
+});
+
+
+
+// Deletar um usuário
+app.delete('/api/usuarios/:id', async (req, res) => {
+  try {
+    const response = await axios.delete(`http://localhost:4001/usuarios/${req.params.id}`);
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao deletar usuário' });
+  }
+});
+
+// Criar novo chamado
 app.post('/api/chamados/criar', async (req, res) => {
   try {
     const { descricao, usuarioId } = req.body;
@@ -187,42 +115,7 @@ app.post('/api/chamados/criar', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/chamados/{id}/atualizar:
- *   put:
- *     description: Atualiza o status de um chamado
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: ID do chamado a ser atualizado
- *         schema:
- *           type: integer
- *       - name: status
- *         in: body
- *         required: true
- *         description: Novo status do chamado
- *         schema:
- *           type: object
- *           properties:
- *             status:
- *               type: string
- *     responses:
- *       200:
- *         description: Status do chamado atualizado
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 descricao:
- *                   type: string
- *                 status:
- *                   type: string
- */
+// Atualizar chamado
 app.put('/api/chamados/:id/atualizar', async (req, res) => {
   try {
     const id = req.params.id;
@@ -239,24 +132,7 @@ app.put('/api/chamados/:id/atualizar', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /notificar:
- *   post:
- *     description: Recebe notificações de novos chamados e notifica os clientes WebSocket
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               descricao:
- *                 type: string
- *     responses:
- *       200:
- *         description: Notificação recebida com sucesso
- */
+
 app.post('/notificar', (req, res) => {
   const novoChamado = req.body;
   console.log('Notificação de novo chamado recebida:', novoChamado);
@@ -264,24 +140,7 @@ app.post('/notificar', (req, res) => {
   res.sendStatus(200);
 });
 
-/**
- * @swagger
- * /api/chamados/{id}/deletar:
- *   delete:
- *     description: Deleta um chamado pelo ID
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: ID do chamado a ser deletado
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Chamado deletado com sucesso
- *       404:
- *         description: Chamado não encontrado
- */
+// Apagar chamado
 app.delete('/api/chamados/:id/deletar', async (req, res) => {
   try {
     const id = req.params.id;
@@ -329,7 +188,7 @@ wss.on('connection', (ws) => {
   ws.send('Conexão WebSocket estabelecida');
 });
 
-// Função para notificar todos os clientes conectados
+// Notificar todos os clientes conectados
 function notificarClientes(mensagem) {
   clientes.forEach(cliente => {
     cliente.send(mensagem);
