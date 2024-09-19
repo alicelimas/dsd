@@ -162,7 +162,7 @@
         fetch(`${API_URL}/chamados/criar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ descricao, usuario: usuarioId })
+          body: JSON.stringify({ descricao, usuarioId })
         })
         .then(response => response.json())
         .then(data => {
