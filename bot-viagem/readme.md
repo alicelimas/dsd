@@ -52,3 +52,5 @@ cd .dsd\bot-viagem\
 2. **Execute o cliente:**
     ```
     node cliente.js
+    ```
+  -  Link para apresentação no [Canva](https://www.canva.com/design/DAGRTVjpwcU/DCAY1Fw47TTrLaLcbH3KZg/edit?utm_content=DAGRTVjpwcU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
